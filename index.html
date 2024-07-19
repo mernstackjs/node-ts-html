@@ -3,37 +3,251 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>node-api-ts</title>
+    <title>Node API TS</title>
     <style>
-      ul {
-        display: flex;
-        gap: 10px;
-        border: 1px solid black;
-        padding: 10px;
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
       }
-      ul li {
-        list-style: none;
+
+      h1,
+      h2 {
+        color: #333;
+      }
+
+      /* Hero Section */
+      .hero {
+        background-color: #007bff;
+        color: #fff;
+        text-align: center;
+        padding: 50px 20px;
+        margin-bottom: 20px;
+      }
+
+      .hero h2 {
+        margin: 0;
+        font-size: 2.5em;
+      }
+
+      .hero p {
+        font-size: 1.2em;
+      }
+
+      .hero button {
+        background-color: #fff;
+        color: #007bff;
+        border: none;
+        padding: 10px 20px;
+        font-size: 1em;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+
+      .hero button:hover {
+        background-color: #f0f0f0;
+      }
+
+      #user {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .user-card {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        background-color: #fff;
+        cursor: pointer;
+        max-width: 300px;
+        transition: background-color 0.3s, transform 0.3s;
+      }
+
+      .user-card:hover {
+        background-color: #f0f0f0;
+        transform: scale(1.02);
+      }
+
+      .user-card .id {
+        font-weight: bold;
+      }
+
+      .user-card .name {
+        color: #555;
+      }
+
+      .user-card .email {
+        color: #777;
+      }
+
+      .user-card .age {
+        color: #888;
+      }
+
+      .user-card .address {
+        color: #999;
+      }
+
+      /* Modal styles */
+      .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0, 0, 0); /* Fallback color */
+        background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+        padding-top: 60px;
+      }
+
+      .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+        border-radius: 5px;
+      }
+
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .close:hover,
+      .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .modal-content h2 {
+        margin-top: 0;
+      }
+
+      .modal-content p {
+        margin: 10px 0;
       }
     </style>
   </head>
   <body>
-    <h1>Node -TS Test</h1>
+    <div class="hero">
+      <h2>Welcome to Node API TS</h2>
+      <p>Your go-to source for user data and more.</p>
+      <button onclick="window.location.href='#user'">View Users</button>
+    </div>
 
     <div id="user"></div>
+
+    <!-- The Modal -->
+    <div id="userModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>User Details</h2>
+        <p><strong>ID:</strong> <span id="modalUserId"></span></p>
+        <p><strong>Name:</strong> <span id="modalUserName"></span></p>
+        <p><strong>Email:</strong> <span id="modalUserEmail"></span></p>
+        <p><strong>Age:</strong> <span id="modalUserAge"></span></p>
+        <p><strong>Address:</strong></p>
+        <p id="modalUserAddress"></p>
+      </div>
+    </div>
+
     <script>
-      const user = document.getElementById("user");
+      const userContainer = document.getElementById("user");
+      const userModal = document.getElementById("userModal");
+      const modalClose = document.querySelector(".close");
+      const modalUserId = document.getElementById("modalUserId");
+      const modalUserName = document.getElementById("modalUserName");
+      const modalUserEmail = document.getElementById("modalUserEmail");
+      const modalUserAge = document.getElementById("modalUserAge");
+      const modalUserAddress = document.getElementById("modalUserAddress");
+
       const getUser = async () => {
-        const res = await fetch("https://api-ts-node-lcfh.onrender.com/users");
-        const data = await res.json();
-        const t = (user.innerHTML = data.users.map(
-          (user) => `
-       <ul>
-         <li >${user.id}</li>
-      <li >${user.name}</li>
-     
-    </ul>`
-        ));
+        try {
+          const res = await fetch(
+            "https://api-ts-node-lcfh.onrender.com/users"
+          );
+          if (!res.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const data = await res.json();
+
+          if (!data.users || data.users.length === 0) {
+            userContainer.innerHTML = "<p>No users found</p>";
+            return;
+          }
+
+          userContainer.innerHTML = data.users
+            .map(
+              (user) => `
+              <div class="user-card" 
+                data-id="${user.id}" 
+                data-name="${user.name}" 
+                data-email="${user.email}" 
+                data-age="${user.age}" 
+                data-address="${user.address.street}, ${user.address.city}, ${user.address.state}, ${user.address.postalCode}">
+                <div class="id">ID: ${user.id}</div>
+                <div class="name">Name: ${user.name}</div>
+                <div class="email">Email: ${user.email}</div>
+                <div class="age">Age: ${user.age}</div>
+                <div class="address">Address: ${user.address.street}, ${user.address.city}, ${user.address.state}, ${user.address.postalCode}</div>
+              </div>
+            `
+            )
+            .join("");
+
+          document.querySelectorAll(".user-card").forEach((card) => {
+            card.addEventListener("click", () => {
+              const userId = card.getAttribute("data-id");
+              const userName = card.getAttribute("data-name");
+              const userEmail = card.getAttribute("data-email");
+              const userAge = card.getAttribute("data-age");
+              const userAddress = card.getAttribute("data-address");
+              showModal(userId, userName, userEmail, userAge, userAddress);
+            });
+          });
+        } catch (error) {
+          console.error("Fetch error:", error);
+          userContainer.innerHTML =
+            "<p>Error fetching users. Please try again later.</p>";
+        }
       };
+
+      const showModal = (userId, userName, userEmail, userAge, userAddress) => {
+        modalUserId.textContent = userId;
+        modalUserName.textContent = userName;
+        modalUserEmail.textContent = userEmail;
+        modalUserAge.textContent = userAge;
+        modalUserAddress.textContent = userAddress;
+        userModal.style.display = "block";
+      };
+
+      modalClose.addEventListener("click", () => {
+        userModal.style.display = "none";
+      });
+
+      window.addEventListener("click", (event) => {
+        if (event.target === userModal) {
+          userModal.style.display = "none";
+        }
+      });
+
+      // Fetch and display users when the page loads
       getUser();
     </script>
   </body>
