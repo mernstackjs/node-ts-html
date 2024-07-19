@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>node-api-ts</title>
+    <style>
+      ul {
+        display: flex;
+        gap: 10px;
+        border: 1px solid black;
+        padding: 10px;
+      }
+      ul li {
+        list-style: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Node -TS Test</h1>
+
+    <div id="user"></div>
+    <script>
+      const user = document.getElementById("user");
+      const getUser = async () => {
+        const res = await fetch("https://api-ts-node-lcfh.onrender.com/users");
+        const data = await res.json();
+        const t = (user.innerHTML = data.users.map(
+          (user) => `
+       <ul>
+         <li >${user.id}</li>
+      <li >${user.name}</li>
+     
+    </ul>`
+        ));
+      };
+      getUser();
+    </script>
+  </body>
+</html>
